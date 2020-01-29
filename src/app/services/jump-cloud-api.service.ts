@@ -20,7 +20,7 @@ export class JumpCloudApiService {
     const data = {
       op: 'add',
       type: 'system_group',
-      username: user.userName,
+      username: user.username,
       email: user.email
     };
 
@@ -33,7 +33,7 @@ export class JumpCloudApiService {
 
   updateUser(user: User) {
     const data = {
-      username: user.userName,
+      username: user.username,
       email: user.email,
       op: 'update',
       type: 'system_group'

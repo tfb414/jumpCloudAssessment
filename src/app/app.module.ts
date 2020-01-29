@@ -4,9 +4,11 @@ import { HttpClientModule } from "@angular/common/http";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
+import { UserComponent } from "./components/user/user.component";
+import { DeleteConfirmationModalComponent } from "./components/delete-confirmation-modal/delete-confirmation-modal.component";
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, UserComponent, DeleteConfirmationModalComponent],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule],
   providers: [],
   bootstrap: [AppComponent]
