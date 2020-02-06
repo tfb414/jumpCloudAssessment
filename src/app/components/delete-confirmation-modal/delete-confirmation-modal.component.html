@@ -1,1 +1,6 @@
-<p>delete-confirmation-modal works!</p>
+<div mat-dialog-content>
+  <mat-card-title>Delete User</mat-card-title>
+  <p>Are you sure you want to delete user: <b>{{data.username}}</b>?</p>
+  <button mat-raised-button color="primary" (click)="confirm()">YES</button>
+  <button mat-raised-button color="primary"(click)="cancel()">CANCEL</button>
+</div>

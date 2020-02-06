@@ -1,44 +1,56 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { User } from '../user';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {map} from 'rxjs/operators';
+import {BehaviorSubject, Subject} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JumpCloudApiService {
-  constructor(private http: HttpClient) {}
+  users: BehaviorSubject<any> = new BehaviorSubject<any>(this.getUsers());
+
+  constructor(private http: HttpClient) {
+  }
+
+  getUsersSubject() {
+    return this.users.asObservable();
+  }
 
   getUsers() {
-    return this.http.get('/api/systemusers');
+    return this.http.get('/api/systemusers').pipe(
+      map((users: any) => users.results)
+    );
   }
 
-  getUser(id: string) {
-    return this.http.get(`api/systemusers/${id}`);
-  }
-
-  addUser(user: Omit<User, 'id'>) {
+  addUser(username: string, email: string) {
     const data = {
       op: 'add',
       type: 'system_group',
-      username: user.username,
-      email: user.email
+      username,
+      email
     };
 
-    return this.http.post('api/systemusers', data);
+    return this.http.post('api/systemusers', data).subscribe(res => {
+      this.users.next(this.getUsers());
+    });
   }
 
   deleteUser(id: string) {
-    return this.http.delete(`api/systemuser/${id}`);
+    return this.http.delete(`api/systemusers/${id}`).subscribe(() => {
+      this.users.next(this.getUsers());
+    });
   }
 
-  updateUser(user: User) {
+  updateUser(id: string, username: string, email: string) {
     const data = {
-      username: user.username,
-      email: user.email,
+      username,
+      email,
       op: 'update',
       type: 'system_group'
     };
 
-    return this.http.put(`api/systemusers/${user.id}`, data);
+    return this.http.put(`api/systemusers/${id}`, data).subscribe(() => {
+      this.users.next(this.getUsers());
+    });
   }
 }

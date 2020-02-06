@@ -1,0 +1,25 @@
+.top-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.center {
+  text-align: center;
+}
+
+table {
+  width: 100%;
+}
+
+.basic-container {
+  padding: 75px;
+}
+
+.add-user-button {
+  margin: 10px 10px 10px 0;
+}
+
+.action-header {
+  padding-left: 39px
+}

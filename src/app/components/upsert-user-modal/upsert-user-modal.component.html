@@ -1,0 +1,15 @@
+<div mat-dialog-content>
+  <mat-card-title>{{data.title}}</mat-card-title>
+  <form [formGroup]="userForm">
+    <mat-form-field>
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email">
+    </mat-form-field>
+  </form>
+  <button mat-raised-button color="primary" (click)="save()">SAVE</button>
+  <button mat-raised-button color="primary" (click)="cancel()">CANCEL</button>
+</div>
