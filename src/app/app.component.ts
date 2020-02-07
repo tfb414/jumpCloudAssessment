@@ -88,9 +88,9 @@ export class AppComponent implements OnInit {
       }
     );
 
-    addUserModal.afterClosed().subscribe((output: Omit<User, 'id'>) => {
-      if (output) {
-        this.jumpCloudApiService.addUser(output.username, output.email).subscribe((updateUserResponse) => {
+    addUserModal.afterClosed().subscribe((user: Omit<User, 'id'>) => {
+      if (user) {
+        this.jumpCloudApiService.addUser(user.username, user.email).subscribe((updateUserResponse) => {
           if (updateUserResponse.error) {
             this.displayError(updateUserResponse.error);
           }

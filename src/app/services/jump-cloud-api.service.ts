@@ -8,11 +8,11 @@ import {User} from '../user';
   providedIn: 'root'
 })
 export class JumpCloudApiService {
-  usersUpdated: Subject<boolean> = new Subject<boolean>();
+  usersUpdated$: Subject<boolean> = new Subject<boolean>();
   users$ = new Subject<User[]>();
 
   constructor(private http: HttpClient) {
-    this.usersUpdated.subscribe(() => {
+    this.usersUpdated$.subscribe(() => {
       this.getUsers().subscribe();
     });
     this.getUsers().subscribe();
@@ -32,7 +32,7 @@ export class JumpCloudApiService {
       tap(users => this.users$.next(users)));
   }
 
-  addUser(username: string, email: string): Observable<User[]> {
+  addUser(username: string, email: string) {
     const data = {
       op: 'add',
       type: 'system_group',
@@ -41,14 +41,14 @@ export class JumpCloudApiService {
     };
 
     return this.http.post('api/systemusers', data)
-      .pipe(tap(() => this.usersUpdated.next()), catchError(error => {
+      .pipe(tap(() => this.usersUpdated$.next()), catchError(error => {
         return of(error);
       }));
   }
 
   deleteUser(id: string) {
     return this.http.delete(`api/systemusers/${id}`)
-      .pipe(tap(() => this.usersUpdated.next()), catchError(error => {
+      .pipe(tap(() => this.usersUpdated$.next()), catchError(error => {
         return of(error);
       }));
   }
@@ -62,7 +62,7 @@ export class JumpCloudApiService {
     };
 
     return this.http.put(`api/systemusers/${user.id}`, data)
-      .pipe(tap(() => this.usersUpdated.next()), catchError(error => {
+      .pipe(tap(() => this.usersUpdated$.next()), catchError(error => {
         return of(error);
       }));
   }
