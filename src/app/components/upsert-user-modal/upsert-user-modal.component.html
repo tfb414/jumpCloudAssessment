@@ -10,6 +10,6 @@
       <input matInput formControlName="email">
     </mat-form-field>
   </form>
-  <button mat-raised-button color="primary" (click)="save()">SAVE</button>
+  <button mat-raised-button color="primary" [disabled]="!userForm.valid" (click)="save()">SAVE</button>
   <button mat-raised-button color="primary" (click)="cancel()">CANCEL</button>
 </div>

@@ -16,9 +16,11 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {UpsertUserModalComponent} from './components/upsert-user-modal/upsert-user-modal.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {SnackBarErrorComponent} from './components/snack-bar-error/snack-bar-error.component';
 
 @NgModule({
-  declarations: [AppComponent, DeleteConfirmationModalComponent, UpsertUserModalComponent],
+  declarations: [AppComponent, DeleteConfirmationModalComponent, UpsertUserModalComponent, SnackBarErrorComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -33,10 +35,11 @@ import {UpsertUserModalComponent} from './components/upsert-user-modal/upsert-us
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent],
-  entryComponents: [DeleteConfirmationModalComponent, UpsertUserModalComponent]
+  entryComponents: [DeleteConfirmationModalComponent, UpsertUserModalComponent, SnackBarErrorComponent]
 })
 export class AppModule {}

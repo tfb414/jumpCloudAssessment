@@ -1,28 +1,38 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {map} from 'rxjs/operators';
-import {BehaviorSubject, Subject} from 'rxjs';
+import {catchError, map, publishReplay, refCount, shareReplay, tap} from 'rxjs/operators';
+import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
+import {User} from '../user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JumpCloudApiService {
-  users: BehaviorSubject<any> = new BehaviorSubject<any>(this.getUsers());
+  usersUpdated: Subject<boolean> = new Subject<boolean>();
+  users$ = new Subject<User[]>();
 
   constructor(private http: HttpClient) {
+    this.usersUpdated.subscribe(() => {
+      this.getUsers().subscribe();
+    });
+    this.getUsers().subscribe();
   }
 
-  getUsersSubject() {
-    return this.users.asObservable();
-  }
-
-  getUsers() {
+  getUsers(): Observable<User[]> {
     return this.http.get('/api/systemusers').pipe(
-      map((users: any) => users.results)
-    );
+      map((users: any) => users.results.map(
+        user => {
+          return {
+            username: user.username,
+            email: user.email,
+            id: user.id
+          };
+        }
+      )),
+      tap(users => this.users$.next(users)));
   }
 
-  addUser(username: string, email: string) {
+  addUser(username: string, email: string): Observable<User[]> {
     const data = {
       op: 'add',
       type: 'system_group',
@@ -30,27 +40,30 @@ export class JumpCloudApiService {
       email
     };
 
-    return this.http.post('api/systemusers', data).subscribe(res => {
-      this.users.next(this.getUsers());
-    });
+    return this.http.post('api/systemusers', data)
+      .pipe(tap(() => this.usersUpdated.next()), catchError(error => {
+        return of(error);
+      }));
   }
 
   deleteUser(id: string) {
-    return this.http.delete(`api/systemusers/${id}`).subscribe(() => {
-      this.users.next(this.getUsers());
-    });
+    return this.http.delete(`api/systemusers/${id}`)
+      .pipe(tap(() => this.usersUpdated.next()), catchError(error => {
+        return of(error);
+      }));
   }
 
-  updateUser(id: string, username: string, email: string) {
+  updateUser(user: User) {
     const data = {
-      username,
-      email,
+      username: user.username,
+      email: user.email,
       op: 'update',
       type: 'system_group'
     };
 
-    return this.http.put(`api/systemusers/${id}`, data).subscribe(() => {
-      this.users.next(this.getUsers());
-    });
+    return this.http.put(`api/systemusers/${user.id}`, data)
+      .pipe(tap(() => this.usersUpdated.next()), catchError(error => {
+        return of(error);
+      }));
   }
 }

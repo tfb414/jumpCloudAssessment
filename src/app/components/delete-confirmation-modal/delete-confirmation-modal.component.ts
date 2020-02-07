@@ -8,23 +8,16 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 })
 export class DeleteConfirmationModalComponent {
 
-  @Output() dialogOutput: EventEmitter<boolean> = new EventEmitter();
-
   constructor(
     public dialogRef: MatDialogRef<DeleteConfirmationModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: string
   ) {}
 
   confirm() {
-    console.log('confirm');
-    this.dialogOutput.emit(true);
-    this.dialogRef.close();
-
+    this.dialogRef.close(true);
   }
 
   cancel() {
-    console.log('cancel');
-    this.dialogOutput.emit(false);
     this.dialogRef.close();
   }
 }

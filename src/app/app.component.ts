@@ -4,6 +4,9 @@ import {DeleteConfirmationModalComponent} from './components/delete-confirmation
 import {MatDialog} from '@angular/material';
 import {Observable, Subscription} from 'rxjs';
 import {UpsertUserModalComponent} from './components/upsert-user-modal/upsert-user-modal.component';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {SnackBarErrorComponent} from './components/snack-bar-error/snack-bar-error.component';
+import {User} from './user';
 
 @Component({
   selector: 'app-root',
@@ -13,62 +16,66 @@ import {UpsertUserModalComponent} from './components/upsert-user-modal/upsert-us
 export class AppComponent implements OnInit {
   title = 'jump-cloud-assessment';
 
-  allUsers$: Observable<any>;
+  allUsers$: Observable<User[]>;
   columnHeaders = ['username', 'email', 'actions'];
-  modalOutputSubscription: Subscription;
 
   constructor(
     private jumpCloudApiService: JumpCloudApiService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private snackbar: MatSnackBar
   ) {
   }
 
   ngOnInit(): void {
-    this.allUsers$ = this.jumpCloudApiService.getUsersSubject();
+    this.allUsers$ = this.jumpCloudApiService.users$.asObservable();
   }
 
-  deleteUser(id: string, username: string) {
+  displayError(message: string): void {
+      this.snackbar.openFromComponent(SnackBarErrorComponent, {duration: 5000, data: message});
+  }
+
+  deleteUser(user: Omit<User, 'email'>) {
     const deleteUserConfirmationModal = this.dialog.open(
       DeleteConfirmationModalComponent,
       {
         width: '400px',
-        data: {username}
+        data: user.username
       }
     );
 
-    this.modalOutputSubscription = deleteUserConfirmationModal.componentInstance.dialogOutput.subscribe(output => {
+    deleteUserConfirmationModal.afterClosed().subscribe((output: boolean) => {
       if (output) {
-        this.jumpCloudApiService.deleteUser(id);
+        this.jumpCloudApiService.deleteUser(user.id).subscribe((updateUserResponse) => {
+          if (updateUserResponse.error) {
+            this.displayError('Failed to delete user');
+          }
+        });
       }
-    });
-
-    deleteUserConfirmationModal.afterClosed().subscribe(() => {
-      this.modalOutputSubscription.unsubscribe();
     });
   }
 
-  editUser(id: string, username: string, email: string) {
-    const editUserModal = this.dialog.open(
+  editUser(user: User) {
+    const updateUserModal = this.dialog.open(
       UpsertUserModalComponent,
       {
         width: '400px',
         data: {
-          username,
-          email,
-          id,
+          username: user.username,
+          email: user.email,
+          id: user.id,
           title: 'Edit User'
         }
       }
     );
 
-    this.modalOutputSubscription = editUserModal.componentInstance.dialogOutput.subscribe(output => {
-      if (output) {
-        this.jumpCloudApiService.updateUser(output.id, output.username, output.email);
+    updateUserModal.afterClosed().subscribe((updatedUser: User) => {
+      if (updatedUser) {
+        this.jumpCloudApiService.updateUser(updatedUser).subscribe((updateUserResponse) => {
+          if (updateUserResponse.error) {
+            this.displayError(updateUserResponse.error);
+          }
+        });
       }
-    });
-
-    editUserModal.afterClosed().subscribe(() => {
-      this.modalOutputSubscription.unsubscribe();
     });
   }
 
@@ -81,9 +88,13 @@ export class AppComponent implements OnInit {
       }
     );
 
-    this.modalOutputSubscription = addUserModal.componentInstance.dialogOutput.subscribe(output => {
+    addUserModal.afterClosed().subscribe((output: Omit<User, 'id'>) => {
       if (output) {
-        this.jumpCloudApiService.addUser(output.username, output.email);
+        this.jumpCloudApiService.addUser(output.username, output.email).subscribe((updateUserResponse) => {
+          if (updateUserResponse.error) {
+            this.displayError(updateUserResponse.error);
+          }
+        });
       }
     });
   }
