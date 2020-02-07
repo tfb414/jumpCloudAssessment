@@ -88,22 +88,19 @@ describe('JumpCloudApiService', () => {
       expect(service.usersUpdated$.next).toHaveBeenCalled();
     });
 
-    // it('should throw the error', () => {
-    //   const id = '123';
-    //   const response = new ErrorEvent('warning will robinson', {error: 'bad'});
-    //
-    //   service.deleteUser(id).subscribe(
-    //     (res) => {console.log(res)},
-    //     (error) => {
-    //       console.log(error);
-    //       expect(true).toEqual(false);
-    //       expect(response).toEqual(error);
-    //     },
-    //   );
-    //
-    //   const req = httpTestingController.expectOne(`api/systemusers/${id}`);
-    //
-    //   req.error(response, {status: 400, statusText: ''});
-    // });
+    it('should return the error', () => {
+      const id = '123';
+      const response = new ErrorEvent('warning will robinson', {error: 'bad'});
+
+      service.deleteUser(id).subscribe(
+        (res) => {
+          expect(res.error.error).toEqual(response.error);
+        },
+      );
+
+      const req = httpTestingController.expectOne(`api/systemusers/${id}`);
+
+      req.error(response, {status: 400, statusText: ''});
+    });
   });
 });
